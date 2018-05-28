@@ -18,6 +18,7 @@ class rewriteConf {
 		$lines = explode("\n",$this->htContent);
 		$i = 0;
 		foreach($lines as $line){
+			$line = trim($line);
 			if($line[0] != '#' && !empty($line[0])){
 				if(strpos($line,"RewriteCond") !== false){
 					if(!isset($k))$k = 0;
@@ -475,7 +476,20 @@ class rewriteConf {
 								if(!empty($conf["rule"]["flags"]["appendEnd"])){
 									$conf["rule"]["flags"]["appendEnd"] = ' '.$conf["rule"]["flags"]["appendEnd"];
 								}
-								$ret.= '	rewrite '.$conf["rule"]["regex"].' '.$conf["rule"]["rew"].''.$conf["rule"]["flags"]["appendEnd"].';
+								
+								// Check if we need to escape the regex							
+								$to_escape = array('{', '}', ';');								
+								$quotes = '';
+								
+								foreach($to_escape as $escape)
+								{
+									if (strpos($conf["rule"]["regex"], $escape) !== false) {
+										$quotes = '"';
+										break;
+									}
+								}						
+								
+								$ret.= '	rewrite '.$quotes.$conf["rule"]["regex"].$quotes.' '.$conf["rule"]["rew"].''.$conf["rule"]["flags"]["appendEnd"].';
 ';
 							} else {
 								$ret.= '#ignored: "-" thing used or unknown variable in regex/rew 
